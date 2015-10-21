@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/toolbar/save.png</file>
+        <file>icons/toolbar/saveall.png</file>
+        <file>icons/toolbar/open.png</file>
+        <file>icons/toolbar/ability.png</file>
+        <file>icons/toolbar/hero.png</file>
+        <file>icons/toolbar/script.png</file>
+        <file>icons/toolbar/unit.png</file>
+        <file>icons/toolbar/item.png</file>
+    </qresource>
+</RCC>
