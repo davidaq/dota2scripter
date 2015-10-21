@@ -13,11 +13,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    luaeditor.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    luaeditor.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    luaeditor.ui
 
 RESOURCES += \
     icons.qrc

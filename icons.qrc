@@ -8,5 +8,6 @@
         <file>icons/toolbar/script.png</file>
         <file>icons/toolbar/unit.png</file>
         <file>icons/toolbar/item.png</file>
+        <file>icons/toolbar/split.png</file>
     </qresource>
 </RCC>
