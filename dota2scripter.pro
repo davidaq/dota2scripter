@@ -14,13 +14,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    luaeditor.cpp
+    addonselectdialog.cpp
 
 HEADERS  += mainwindow.h \
-    luaeditor.h
+    global.h \
+    addonselectdialog.h
 
 FORMS    += mainwindow.ui \
-    luaeditor.ui
+    luaeditor.ui \
+    addonselectdialog.ui
 
 RESOURCES += \
     icons.qrc

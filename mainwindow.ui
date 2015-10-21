@@ -6,12 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>661</width>
-    <height>530</height>
+    <width>825</width>
+    <height>629</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>500</width>
+    <height>300</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Dota Scripter</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/icons/toolbar/script.png</normaloff>:/icons/toolbar/script.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -30,6 +40,33 @@
     <property name="spacing">
      <number>0</number>
     </property>
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>1</number>
+      </property>
+      <item>
+       <widget class="QTextEdit" name="textEditMain">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="textEditSplit">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -37,15 +74,15 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>661</width>
-     <height>22</height>
+     <width>825</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProject">
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpen"/>
+    <addaction name="actionOpen_Addon"/>
     <addaction name="actionOpen_File"/>
     <addaction name="separator"/>
     <addaction name="actionSave_File"/>
@@ -105,7 +142,16 @@
    <addaction name="separator"/>
    <addaction name="actionSplit_Window"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="styleSheet">
+    <string notr="true">QStatusBar {
+	border-top: 1px solid rgba(0,0,0,30);
+}</string>
+   </property>
+   <property name="sizeGripEnabled">
+    <bool>true</bool>
+   </property>
+  </widget>
   <widget class="QDockWidget" name="dockWidget">
    <property name="floating">
     <bool>false</bool>
@@ -143,9 +189,6 @@
        </property>
        <property name="frameShadow">
         <enum>QFrame::Plain</enum>
-       </property>
-       <property name="lineWidth">
-        <number>0</number>
        </property>
        <property name="rootIsDecorated">
         <bool>false</bool>
@@ -208,12 +251,12 @@
     </layout>
    </widget>
   </widget>
-  <action name="actionOpen">
+  <action name="actionOpen_Addon">
    <property name="text">
     <string>Open Addon</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Shift+O</string>
+    <string>Ctrl+Shift+O</string>
    </property>
   </action>
   <action name="actionOpen_File">
@@ -225,7 +268,7 @@
     <string>Open File</string>
    </property>
    <property name="shortcut">
-    <string>Meta+O</string>
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionSave_File">
@@ -237,7 +280,7 @@
     <string>Save File</string>
    </property>
    <property name="shortcut">
-    <string>Meta+S</string>
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionSave_All">
@@ -249,7 +292,7 @@
     <string>Save All</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+Shift+S</string>
+    <string>Ctrl+Alt+Shift+S</string>
    </property>
   </action>
   <action name="actionUndo">
@@ -257,7 +300,7 @@
     <string>Undo</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Z</string>
+    <string>Ctrl+Z</string>
    </property>
   </action>
   <action name="actionRedo">
@@ -265,7 +308,7 @@
     <string>Redo</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Y</string>
+    <string>Ctrl+Shift+Z</string>
    </property>
   </action>
   <action name="actionFind">
@@ -273,7 +316,7 @@
     <string>Find</string>
    </property>
    <property name="shortcut">
-    <string>Meta+F</string>
+    <string>Ctrl+F</string>
    </property>
   </action>
   <action name="actionReplace">
@@ -281,7 +324,7 @@
     <string>Replace</string>
    </property>
    <property name="shortcut">
-    <string>Meta+R</string>
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionOnline_Documents">
@@ -356,7 +399,7 @@
     <string>Split Window</string>
    </property>
    <property name="shortcut">
-    <string>Meta+P</string>
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>

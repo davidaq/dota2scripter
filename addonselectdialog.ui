@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AddonSelectDialog</class>
+ <widget class="QDialog" name="AddonSelectDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>327</width>
+    <height>219</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Select Addon</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/icons/toolbar/open.png</normaloff>:/icons/toolbar/open.png</iconset>
+  </property>
+  <property name="whatsThis">
+   <string>Open an addon for script editing.</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="3">
+    <widget class="QPushButton" name="cancel">
+     <property name="whatsThis">
+      <string>Cancel and close this dialog.</string>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QPushButton" name="open">
+     <property name="whatsThis">
+      <string>Open the selected addon.</string>
+     </property>
+     <property name="text">
+      <string>Open</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="relocate">
+     <property name="whatsThis">
+      <string>Relocate manuelly where Dota 2 is installed.</string>
+     </property>
+     <property name="text">
+      <string>Relocate Dota 2</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="5">
+    <widget class="QListWidget" name="list">
+     <property name="whatsThis">
+      <string>A list of existing addons found under Dota 2. Select one here to open it for script editing.
+
+You may create new ones with steam tools.</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>test</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>open</tabstop>
+  <tabstop>cancel</tabstop>
+  <tabstop>relocate</tabstop>
+  <tabstop>list</tabstop>
+ </tabstops>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
