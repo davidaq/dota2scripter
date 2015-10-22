@@ -28,6 +28,9 @@ int main(int argc, char *argv[])
             dotaDir = steamDir;
         }
     }
+
+    dotaDirFound = true; // DEBUG
+
     if (!dotaDirFound) {
         QMessageBox msg;
         msg.setWindowTitle(QObject::tr("Unable to continue"));

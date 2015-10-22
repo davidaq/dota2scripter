@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>825</width>
-    <height>629</height>
+    <width>915</width>
+    <height>642</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -46,22 +46,28 @@
        <number>1</number>
       </property>
       <item>
-       <widget class="QTextEdit" name="textEditMain">
+       <widget class="ScriptEditor" name="editorMain">
         <property name="minimumSize">
          <size>
           <width>100</width>
           <height>0</height>
          </size>
         </property>
+        <property name="lineWrapMode">
+         <enum>QPlainTextEdit::NoWrap</enum>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="textEditSplit">
+       <widget class="ScriptEditor" name="editorSplit">
         <property name="minimumSize">
          <size>
           <width>100</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="lineWrapMode">
+         <enum>QPlainTextEdit::NoWrap</enum>
         </property>
        </widget>
       </item>
@@ -74,8 +80,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>825</width>
-     <height>23</height>
+     <width>915</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProject">
@@ -99,13 +105,12 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
-    <addaction name="separator"/>
     <addaction name="actionFind"/>
     <addaction name="actionReplace"/>
     <addaction name="separator"/>
-    <addaction name="actionSplit_Window"/>
+    <addaction name="actionSplit_Editor"/>
+    <addaction name="actionSwitch_To_Main_Editor"/>
+    <addaction name="actionSwitch_To_Split_Editor"/>
    </widget>
    <widget class="QMenu" name="menuHelp_2">
     <property name="title">
@@ -140,7 +145,7 @@
    <addaction name="actionNew_Item"/>
    <addaction name="actionNew_Lua_Script"/>
    <addaction name="separator"/>
-   <addaction name="actionSplit_Window"/>
+   <addaction name="actionSplit_Editor"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="styleSheet">
@@ -246,6 +251,46 @@
           <normaloff>:/icons/toolbar/script.png</normaloff>:/icons/toolbar/script.png</iconset>
         </property>
        </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_3">
+   <property name="features">
+    <set>QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string>Opened Documents</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QListWidget" name="listWidget">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
       </widget>
      </item>
     </layout>
@@ -387,7 +432,7 @@
     <string>New Lua Script</string>
    </property>
   </action>
-  <action name="actionSplit_Window">
+  <action name="actionSplit_Editor">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -396,14 +441,37 @@
      <normaloff>:/icons/toolbar/split.png</normaloff>:/icons/toolbar/split.png</iconset>
    </property>
    <property name="text">
-    <string>Split Window</string>
+    <string>Split Editor</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
    </property>
   </action>
+  <action name="actionSwitch_To_Main_Editor">
+   <property name="text">
+    <string>Switch To Main Editor</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+[</string>
+   </property>
+  </action>
+  <action name="actionSwitch_To_Split_Editor">
+   <property name="text">
+    <string>Switch To Split Editor</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+]</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ScriptEditor</class>
+   <extends>QPlainTextEdit</extends>
+   <header>scripteditor.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="icons.qrc"/>
  </resources>

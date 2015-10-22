@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "addonselectdialog.h"
+#include "scriptdocument.h"
 #include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -9,12 +10,15 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setDisabled(true);
-    QTimer::singleShot(300, this, SLOT(on_actionOpen_Addon_triggered()));
+//    DEBUG
+//    setDisabled(true);
+//    QTimer::singleShot(300, this, SLOT(on_actionOpen_Addon_triggered()));
 
     // setup initial state of the twin editors
-    ui->textEditSplit->hide();
-    currentEditor = ui->textEditMain;
+    ui->editorSplit->hide();
+    currentEditor = ui->editorMain;
+
+    on_actionNew_Lua_Script_triggered();
 }
 
 MainWindow::~MainWindow()
@@ -37,23 +41,42 @@ void MainWindow::on_actionOpen_Addon_triggered()
 
 void MainWindow::on_actionNew_Lua_Script_triggered()
 {
+    ScriptDocument *document = new ScriptDocument();
+    ui->editorMain->setDocument(document);
 }
 
-void MainWindow::on_actionSplit_Window_triggered(bool checked)
+void MainWindow::on_actionSplit_Editor_triggered(bool checked)
 {
     if (checked) {
-        ui->textEditSplit->show();
+        ui->editorSplit->setDocument(ui->editorMain->document());
+        ui->editorSplit->show();
+        ui->editorSplit->setFocus();
     } else {
-        ui->textEditSplit->hide();
+        ui->editorSplit->hide();
+        ui->editorMain->setFocus();
     }
 }
 
-void MainWindow::on_textEditMain_selectionChanged()
+void MainWindow::on_editorMain_selectionChanged()
 {
-    currentEditor = ui->textEditMain;
+    currentEditor = ui->editorMain;
 }
 
-void MainWindow::on_textEditSplit_selectionChanged()
+void MainWindow::on_editorSplit_selectionChanged()
 {
-    currentEditor = ui->textEditSplit;
+    currentEditor = ui->editorSplit;
+}
+
+void MainWindow::on_actionSwitch_To_Main_Editor_triggered()
+{
+    ui->editorMain->setFocus();
+}
+
+void MainWindow::on_actionSwitch_To_Split_Editor_triggered()
+{
+    if (ui->editorSplit->isHidden()) {
+        ui->actionSplit_Editor->trigger();
+    } else {
+        ui->editorSplit->setFocus();
+    }
 }

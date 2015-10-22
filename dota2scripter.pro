@@ -14,11 +14,23 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    addonselectdialog.cpp
+    addonselectdialog.cpp \
+    scripteditor.cpp \
+    scripteditorlinenumbers.cpp \
+    scriptdocument.cpp \
+    scriptassistantlua.cpp \
+    scriptassistant.cpp \
+    tokenfinder.cpp
 
 HEADERS  += mainwindow.h \
     global.h \
-    addonselectdialog.h
+    addonselectdialog.h \
+    scripteditor.h \
+    scripteditorlinenumbers.h \
+    scriptdocument.h \
+    scriptassistantlua.h \
+    scriptassistant.h \
+    tokenfinder.h
 
 FORMS    += mainwindow.ui \
     luaeditor.ui \

@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QTextEdit>
+#include "scripteditor.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,18 +19,22 @@ public:
 private slots:
     void on_actionNew_Lua_Script_triggered();
 
-    void on_actionSplit_Window_triggered(bool checked);
+    void on_actionSplit_Editor_triggered(bool checked);
 
-    void on_textEditMain_selectionChanged();
+    void on_editorMain_selectionChanged();
 
-    void on_textEditSplit_selectionChanged();
+    void on_editorSplit_selectionChanged();
 
     void on_actionOpen_Addon_triggered();
+
+    void on_actionSwitch_To_Main_Editor_triggered();
+
+    void on_actionSwitch_To_Split_Editor_triggered();
 
 private:
     Ui::MainWindow *ui;
 
-    QTextEdit* currentEditor;
+    ScriptEditor *currentEditor;
     QString addonName;
 };
 
