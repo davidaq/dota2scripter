@@ -11,6 +11,7 @@ class ScriptEditor : public QPlainTextEdit
 public:
     explicit ScriptEditor(QWidget *parent = 0);
     void resizeEvent(QResizeEvent *);
+    void keyPressEvent(QKeyEvent *e);
 signals:
 
 public slots:
