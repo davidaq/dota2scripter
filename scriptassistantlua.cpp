@@ -52,6 +52,7 @@ ScriptAssistantLua::ScriptAssistantLua(QTextDocument *document) :
                             << "ipairs"     << "coroutine"  << "assert"         << "error"          << "next"
                             << "pairs"      << "type"       << "tostring"       << "tonumber"       << "getmetatable"
                             << "string"     << "table"      << "math"           << "setmetatable"   << "rawset"
+                            << "self"       << "class"
                             , GLOBALS);
     }
 }

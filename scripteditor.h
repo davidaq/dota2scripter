@@ -1,6 +1,7 @@
 #ifndef SCRIPTEDITOR_H
 #define SCRIPTEDITOR_H
 
+#include "global.h"
 #include <QPlainTextEdit>
 
 class ScriptEditorLineNumbers;
