@@ -1,6 +1,7 @@
 #ifndef TOKENFINDER_H
 #define TOKENFINDER_H
 
+#include "global.h"
 #include <QStringList>
 #include <QVariant>
 

@@ -10,6 +10,7 @@ const static int COMMENT_M  = 3;
 const static int STRING     = 4;
 const static int STRING_M   = 5;
 const static int OPERATOR   = 6;
+const static int GLOBALS    = 7;
 
 const static int COMMENT_MASK = 1 << 28;
 const static int STRING_MASK  = 1 << 29;
@@ -42,8 +43,16 @@ ScriptAssistantLua::ScriptAssistantLua(QTextDocument *document) :
                             << "+" << "-" << "*" << "/" << "%" << "^"
                             << "|" << "&" << "?" << "~" << ">" << "<"
                             << "=" << "(" << ")" << "{" << "}" << "."
-                            << ":"
+                            << ":" << "#"
                             , OPERATOR);
+        luaTokens.addTokens(QStringList()
+                            << "getfenv"    << "setfenv"    << "pcall"          << "rawequal"       << "gcinfo"
+                            << "os"         << "debug"      << "collectgarbage" << "dofile"         << "_G"
+                            << "print"      << "require"    << "unpack"         << "io"             << "file"
+                            << "ipairs"     << "coroutine"  << "assert"         << "error"          << "next"
+                            << "pairs"      << "type"       << "tostring"       << "tonumber"       << "getmetatable"
+                            << "string"     << "table"      << "math"           << "setmetatable"   << "rawset"
+                            , GLOBALS);
     }
 }
 
@@ -97,6 +106,12 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
                 setFormat(luaTokens.position(), luaTokens.token().length(), QColor(0x46a2da));
             }
             break;
+        case GLOBALS:
+            if (isWordBreak(text, luaTokens.position() - 1)
+                    && isWordBreak(text, luaTokens.position() + luaTokens.token().length())) {
+                setFormat(luaTokens.position(), luaTokens.token().length(), QColor(0x436199));
+            }
+            break;
         case OPERATOR:
             setFormat(luaTokens.position(), luaTokens.token().length(), QColor(0x3783d8));
             break;
@@ -118,12 +133,11 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
             } else {
                 N = 0;
             }
-            luaTokens.skip(4 + N);
             find = luaTokens.position() + 4 + N;
-            sub = "]";
+            sub = "--]";
             for (int i = 0; i < N; i++)
                 sub += "=";
-            sub += "]--";
+            sub += "]";
             find = text.indexOf(sub, find);
             if (find > -1) {
                 len = find + sub.length() - luaTokens.position();
@@ -132,7 +146,7 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
                 setCurrentBlockState(COMMENT_MASK | N);
             }
             setFormat(luaTokens.position(), len, 0x999999);
-            luaTokens.skip(len);
+            luaTokens.skip(len - luaTokens.token().length());
             break;
         case STRING:
             find = luaTokens.position();
@@ -156,7 +170,7 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
                 len = text.length() - luaTokens.position();
             }
             setFormat(luaTokens.position(), len, QColor(0x5caa15));
-            luaTokens.skip(len);
+            luaTokens.skip(len - luaTokens.token().length());
             break;
         case STRING_M:
             if (luaTokens.token().at(1) == '=') {
@@ -170,7 +184,6 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
             } else {
                 N = 0;
             }
-            luaTokens.skip(2 + N);
             find = luaTokens.position() + 2 + N;
             sub = "]";
             for (int i = 0; i < N; i++)
@@ -184,7 +197,7 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
                 setCurrentBlockState(STRING_MASK | N);
             }
             setFormat(luaTokens.position(), len, 0x5caa15);
-            luaTokens.skip(len);
+            luaTokens.skip(len - luaTokens.token().length());
             break;
         default:
             break;
