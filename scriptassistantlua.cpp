@@ -1,5 +1,6 @@
 #include "scriptassistantlua.h"
 #include "tokenfinder.h"
+#include "scripteditor.h"
 
 static bool tokensSetup = true;
 static TokenFinder luaTokens;
@@ -202,6 +203,56 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
             break;
         default:
             break;
+        }
+    }
+}
+
+static int preferedIndent(QTextCursor &cursor) {
+    const QTextBlock& prev = cursor.block().previous();
+    if (!prev.isValid()) {
+        return 0;
+    }
+    QString prevText = prev.text();
+    int sz = prevText.length();
+    while (sz > 0 && prevText.at(sz - 1) == ' ') {
+        sz--;
+    }
+    prevText = prevText.left(sz);
+    int space = 0;
+    for (; space < prevText.length() && prevText.at(space) == ' '; space++) {
+    }
+    if (prevText.endsWith("do") || prevText.endsWith("then") || prevText.endsWith("else")) {
+        space += 4;
+    }
+    // TODO function indent
+    return space;
+}
+
+bool ScriptAssistantLua::autoIndent(QTextCursor &cursor)
+{
+    int space = preferedIndent(cursor);
+    if (!space)
+        return false;
+    cursor.insertText(QString(" ").repeated(space));
+    return true;
+}
+
+
+void ScriptAssistantLua::update(int key, ScriptEditor& editor)
+{
+    if (key == Qt::Key_D || key == Qt::Key_E) {
+        QTextCursor cursor = editor.textCursor();
+        const QTextBlock& block = cursor.block();
+        const QString& blockText = block.text();
+        int posInBlock = cursor.positionInBlock();
+#define TEST(K,S,N) (key == Qt::Key_ ## K && posInBlock >= N && blockText.mid(posInBlock - N, N) == #S && blockText.left(posInBlock - N).trimmed().isEmpty())
+        if (TEST(D, end, 3) || TEST(E, else, 4)) {
+            int space = preferedIndent(cursor) - 4;
+            cursor.movePosition(QTextCursor::StartOfBlock);
+            for (int i = 0; i < blockText.length() && blockText.at(i) == ' '; i++) {
+                cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+            }
+            cursor.insertText(QString(" ").repeated(space));
         }
     }
 }

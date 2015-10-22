@@ -22,6 +22,7 @@ private slots:
     void updateLineNumbers(const QRect&, int dy);
     void linesNumberChanged(int);
     void highlightCurrentLine();
+    void onTextChanged();
 
 private:
     friend class ScriptEditorLineNumbers;
