@@ -14,5 +14,12 @@ DocumentManager* DocumentManager::manager()
 
 ScriptDocument* DocumentManager::open(const QString& path, ScriptDocument::DocumentType type)
 {
-    return new ScriptDocument(path, type);
+    ScriptDocument* doc = new ScriptDocument(path, type);
+    documentList.append(doc);
+    return doc;
+}
+
+QList<ScriptDocument*> DocumentManager::list()
+{
+    return documentList;
 }
