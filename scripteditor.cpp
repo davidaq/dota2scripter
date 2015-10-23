@@ -53,19 +53,18 @@ static void inline indent(QTextCursor& cursor, bool isBackTab) {
         }
     }
     if (selectedBlocks.isEmpty()) {
-        int width = 4 - (cursor.positionInBlock() & 3);
-        if (width < 2)
-            width += 4;
         if (isBackTab) {
-            cursor.removeSelectedText();
             const QString& text = cursor.block().text();
-            if (cursor.atEnd() && text.at(cursor.positionInBlock() - 1) != ' ') {
+            if (cursor.selectionStart() != cursor.selectionEnd()) {
+                cursor.removeSelectedText();
+            } else if (cursor.atEnd() && text.at(cursor.positionInBlock() - 1) != ' ') {
                 cursor.movePosition(QTextCursor::StartOfBlock);
-                for (int i = 0; i < text.length() && text.at(i) == ' '; i++) {
-                    cursor.movePosition(QTextCursor::Right);
-                }
+                cursor.movePosition(QTextCursor::NextWord);
             }
-            int e = cursor.positionInBlock() - width - 1;
+            int width = cursor.positionInBlock() & 3;
+            if (width == 0)
+                width = 4;
+            int e = cursor.positionInBlock() - width;
             if (e < 0)
                 e = 0;
             for (int i = cursor.positionInBlock() - 1; i >= e && text.at(i) == ' '; i--) {
@@ -73,6 +72,9 @@ static void inline indent(QTextCursor& cursor, bool isBackTab) {
             }
             cursor.removeSelectedText();
         } else {
+            int width = 4 - (cursor.positionInBlock() & 3);
+            if (width == 0)
+                width = 4;
             if (cursor.atBlockStart() && cursor.block().text().trimmed().isEmpty()) {
                 cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
                 ScriptDocument* doc = dynamic_cast<ScriptDocument*>(cursor.document());
@@ -108,21 +110,35 @@ void ScriptEditor::keyPressEvent(QKeyEvent *e)
         indent(cursor, e->key() == Qt::Key_Backtab || e->modifiers() & Qt::ShiftModifier);
         cursor.endEditBlock();
         setTextCursor(cursor);
-    } else if(e->key() == Qt::Key_Return) {
-        QPlainTextEdit::keyPressEvent(e);
-        ScriptDocument* doc = dynamic_cast<ScriptDocument*>(document());
-        if (doc) {
-            QTextCursor cursor = textCursor();
-            cursor.beginEditBlock();
-            doc->assistant()->autoIndent(cursor);
-            cursor.endEditBlock();
-            setTextCursor(cursor);
-        }
     } else {
-        QPlainTextEdit::keyPressEvent(e);
+        bool autoIndent = false;
+        if(e->key() == Qt::Key_Return) {
+            autoIndent = true;
+            if (e->modifiers() & Qt::ShiftModifier) {
+                e->setModifiers(Qt::NoModifier);
+                autoIndent = false;
+            }
+        }
         ScriptDocument* doc = dynamic_cast<ScriptDocument*>(document());
         if (doc) {
-            doc->assistant()->update(e->key(), *this);
+            bool modified = doc->isModified();
+            doc->setModified(false);
+            QPlainTextEdit::keyPressEvent(e);
+            if (doc->isModified()) {
+                ScriptAssistant* assistant = doc->assistant();
+                QTextCursor cursor = textCursor();
+                cursor.beginEditBlock();
+                if (autoIndent) {
+                    assistant->autoIndent(cursor);
+                }
+                assistant->informInputFromEditor(e->key(), cursor, this);
+                cursor.endEditBlock();
+            }
+            if (modified) {
+                doc->setModified(true);
+            }
+        } else {
+            QPlainTextEdit::keyPressEvent(e);
         }
     }
 }
