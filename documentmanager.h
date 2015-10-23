@@ -12,15 +12,20 @@ public:
 
     ScriptDocument* open(const QString& path, ScriptDocument::DocumentType type);
 
-    QList<ScriptDocument*> list();
+    int count() const;
+    ScriptDocument* at(int index) const;
 signals:
     void listUpdated();
 public slots:
 
-private:
+protected:
     explicit DocumentManager();
 
-    QList<ScriptDocument*> documentList;
+    ScriptDocument* addDocument(ScriptDocument* document);
+
+private:
+
+    QVector<ScriptDocument*> documentList;
 };
 
 #endif // DOCUMENTMANAGER_H
