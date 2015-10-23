@@ -44,7 +44,7 @@ void MainWindow::on_actionOpen_Addon_triggered()
 
 void MainWindow::on_actionNew_Lua_Script_triggered()
 {
-    ui->editorMain->setDocument(DocumentManager::manager()->open("", ScriptDocument::lua));
+    currentEditor->setDocument(DocumentManager::manager()->open("", ScriptDocument::lua));
 }
 
 void MainWindow::on_actionSplit_Editor_triggered(bool checked)
