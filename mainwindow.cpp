@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "addonselectdialog.h"
 #include "scripteditor.h"
-#include "scriptdocument.h"
+#include "documentmanager.h"
 #include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -44,8 +44,7 @@ void MainWindow::on_actionOpen_Addon_triggered()
 
 void MainWindow::on_actionNew_Lua_Script_triggered()
 {
-    ScriptDocument *document = new ScriptDocument();
-    ui->editorMain->setDocument(document);
+    ui->editorMain->setDocument(DocumentManager::manager()->open("", ScriptDocument::lua));
 }
 
 void MainWindow::on_actionSplit_Editor_triggered(bool checked)

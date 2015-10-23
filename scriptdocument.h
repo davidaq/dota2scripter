@@ -12,13 +12,14 @@ public:
         lua, hero
     };
 
-    explicit ScriptDocument(const QString& path="", DocumentType type = lua);
 
     const QString& path() const;
     DocumentType type() const;
     ScriptAssistant* assistant() const;
 
 protected:
+    friend class DocumentManager;
+    explicit ScriptDocument(const QString& path="", DocumentType type = lua);
 
 signals:
 

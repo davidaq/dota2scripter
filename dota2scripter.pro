@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     scriptdocument.cpp \
     scriptassistantlua.cpp \
     scriptassistant.cpp \
-    tokenfinder.cpp
+    tokenfinder.cpp \
+    documentmanager.cpp
 
 HEADERS  += mainwindow.h \
     global.h \
@@ -30,7 +31,8 @@ HEADERS  += mainwindow.h \
     scriptdocument.h \
     scriptassistantlua.h \
     scriptassistant.h \
-    tokenfinder.h
+    tokenfinder.h \
+    documentmanager.h
 
 FORMS    += mainwindow.ui \
     luaeditor.ui \
