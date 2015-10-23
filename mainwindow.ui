@@ -111,6 +111,8 @@
     <addaction name="actionSplit_Editor"/>
     <addaction name="actionSwitch_To_Main_Editor"/>
     <addaction name="actionSwitch_To_Split_Editor"/>
+    <addaction name="separator"/>
+    <addaction name="actionComment_Selection"/>
    </widget>
    <widget class="QMenu" name="menuHelp_2">
     <property name="title">
@@ -461,6 +463,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+]</string>
+   </property>
+  </action>
+  <action name="actionComment_Selection">
+   <property name="text">
+    <string>Comment Selection</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+/</string>
    </property>
   </action>
  </widget>

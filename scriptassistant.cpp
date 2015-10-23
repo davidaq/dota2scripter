@@ -64,3 +64,74 @@ void ScriptAssistant::onInput(const QString& token, QObject* obj, const char* sl
     const QMetaMethod& method = metaObject->method(index);
     inputListeners[key].append(InputListener(token, obj, method, wordBreak));
 }
+
+bool ScriptAssistant::commentLines(QTextCursor& cursor, const QList<QTextBlock> &lines)
+{
+    QString mark = lineCommentMark();
+    if (mark.isEmpty()) {
+        return commentSelection(cursor);
+    }
+    bool uncomment = true;
+    foreach (const QTextBlock& block, lines) {
+        if (!block.text().trimmed().startsWith(mark)) {
+            uncomment = false;
+            break;
+        }
+    }
+    foreach (const QTextBlock& block, lines) {
+        cursor.setPosition(block.position());
+        if (uncomment) {
+            if (block.text().at(0) == ' ') {
+                cursor.movePosition(QTextCursor::NextWord);
+            }
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, mark.length());
+            cursor.removeSelectedText();
+        } else {
+            cursor.insertText(mark);
+        }
+    }
+    cursor.setPosition(lines.first().position());
+    cursor.setPosition(lines.last().position(), QTextCursor::KeepAnchor);
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    return true;
+}
+
+bool ScriptAssistant::commentSelection(QTextCursor &cursor)
+{
+    QString prefix = blockCommentStart();
+    QString suffix = blockCommentEnd();
+    if (prefix.isEmpty() || suffix.isEmpty()) {
+        return false;
+    }
+    const QString& selText = cursor.selectedText();
+    const QString& before = cursor.block().text().mid(cursor.selectionStart() - prefix.length(), prefix.length());
+    const QString& after = cursor.block().text().mid(cursor.selectionEnd(), suffix.length());
+    if ((selText.startsWith(prefix) || before == prefix) && (selText.endsWith(suffix) || after == suffix)) {
+        int start = cursor.selectionStart();
+        if (before == prefix) {
+            start -= prefix.length();
+        }
+        int end = cursor.selectionEnd();
+        if (after == suffix) {
+            end += suffix.length();
+        }
+        cursor.setPosition(end);
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, suffix.length());
+        cursor.removeSelectedText();
+        cursor.setPosition(start);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, prefix.length());
+        cursor.removeSelectedText();
+    } else {
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd();
+        cursor.setPosition(end);
+        cursor.insertText(suffix);
+        cursor.setPosition(start);
+        cursor.insertText(prefix);
+        cursor.setPosition(start);
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, prefix.length() + suffix.length());
+        return true;
+    }
+    return false;
+}

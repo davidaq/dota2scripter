@@ -27,7 +27,6 @@ ScriptDocument::DocumentType ScriptDocument::type() const
     return docType;
 }
 
-
 ScriptAssistant* ScriptDocument::assistant() const
 {
     return docAssistant;

@@ -14,6 +14,12 @@ public:
     virtual bool autoIndent(QTextCursor& cursor) = 0;
 
     void informInputFromEditor(int keyPressed, QTextCursor& cursor, ScriptEditor* editor);
+    virtual QString lineCommentMark() = 0;
+    virtual QString blockCommentStart() = 0;
+    virtual QString blockCommentEnd() = 0;
+
+    bool commentSelection(QTextCursor& cursor);
+    bool commentLines(QTextCursor& cursor, const QList<QTextBlock>& lines);
 protected:
     void onInput(const QString& token, QObject *obj, const char* slot, bool wordBreak=true);
     virtual bool isWordBreak(const QChar& c) const;

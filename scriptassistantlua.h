@@ -9,6 +9,9 @@ class ScriptAssistantLua : public ScriptAssistant
 public:
     explicit ScriptAssistantLua(QTextDocument *document = 0);
     bool autoIndent(QTextCursor& cursor);
+    QString lineCommentMark();
+    QString blockCommentStart();
+    QString blockCommentEnd();
 protected:
     void highlightBlock(const QString &text);
 

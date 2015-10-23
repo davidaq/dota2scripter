@@ -72,21 +72,39 @@ ScriptAssistantLua::ScriptAssistantLua(QTextDocument *document) :
                             << "ipairs"     << "coroutine"  << "assert"         << "error"          << "next"
                             << "pairs"      << "type"       << "tostring"       << "tonumber"       << "getmetatable"
                             << "string"     << "table"      << "math"           << "setmetatable"   << "rawset"
-                            << "self"       << "class"
+                            << "self"       << "class"      << "select"
                             , GLOBALS);
         indentKeywords      << "do"     << "elseif"    << "else"    << "then"
                             << "for"    << "function"  << "if"      << "repeat"     << "while";
         unindentKeywords    << "do"     << "elseif"    << "else"    << "then"
                             << "end"    << "until";
     }
-    foreach (const QString& keyword, unindentKeywords) {
-        onInput(keyword, this, SLOT(autoUnindent(QString,QTextCursor*,ScriptEditor*)));
-    }
+    onInput("end", this, SLOT(autoUnindent(QString,QTextCursor*,ScriptEditor*)));
+    onInput("until", this, SLOT(autoUnindent(QString,QTextCursor*,ScriptEditor*)));
+    onInput("else", this, SLOT(autoUnindent(QString,QTextCursor*,ScriptEditor*)));
+    onInput("elseif", this, SLOT(autoUnindent(QString,QTextCursor*,ScriptEditor*)));
+    onInput("then", this, SLOT(autoUnindent(QString,QTextCursor*,ScriptEditor*)));
     onInput("]", this, SLOT(autoUnindentString(QString,QTextCursor*,ScriptEditor*)));
     onInput("", this, SLOT(undoAutoUnindent(QString,QTextCursor*,ScriptEditor*)));
     onInput("\r", this, SLOT(newlineAutoEndBlock(QString,QTextCursor*,ScriptEditor*)));
 
     autoIndentBlockIndex = -1;
+}
+
+
+QString ScriptAssistantLua::lineCommentMark()
+{
+    return "--";
+}
+
+QString ScriptAssistantLua::blockCommentStart()
+{
+    return "--[[";
+}
+
+QString ScriptAssistantLua::blockCommentEnd()
+{
+    return "--]]";
 }
 
 void ScriptAssistantLua::highlightBlock(const QString &text)

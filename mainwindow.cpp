@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "addonselectdialog.h"
+#include "scripteditor.h"
 #include "scriptdocument.h"
 #include <QTimer>
 
@@ -17,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // setup initial state of the twin editors
     ui->editorSplit->hide();
     currentEditor = ui->editorMain;
+    connect(ui->editorMain, SIGNAL(onFocus(ScriptEditor*)), this, SLOT(onEditorFocus(ScriptEditor*)));
+    connect(ui->editorSplit, SIGNAL(onFocus(ScriptEditor*)), this, SLOT(onEditorFocus(ScriptEditor*)));
 
     on_actionNew_Lua_Script_triggered();
 }
@@ -57,14 +60,9 @@ void MainWindow::on_actionSplit_Editor_triggered(bool checked)
     }
 }
 
-void MainWindow::on_editorMain_selectionChanged()
+void MainWindow::onEditorFocus(ScriptEditor* editor)
 {
-    currentEditor = ui->editorMain;
-}
-
-void MainWindow::on_editorSplit_selectionChanged()
-{
-    currentEditor = ui->editorSplit;
+    currentEditor = editor;
 }
 
 void MainWindow::on_actionSwitch_To_Main_Editor_triggered()
@@ -79,4 +77,9 @@ void MainWindow::on_actionSwitch_To_Split_Editor_triggered()
     } else {
         ui->editorSplit->setFocus();
     }
+}
+
+void MainWindow::on_actionComment_Selection_triggered()
+{
+    currentEditor->commentSelection();
 }

@@ -9,12 +9,11 @@ ScriptEditor::ScriptEditor(QWidget *parent) :
 {
     lineNumbers = new ScriptEditorLineNumbers(this);
 
-    setStyleSheet("font-family: Monaco, Monospace, Courier New, Courier; font-size: 13px");
+    setStyleSheet("font-family: Monaco, Monospace, Courier New, Courier !important; font-size: 13px");
 
     connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumbers(QRect,int)));
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(linesNumberChanged(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
-    connect(this, SIGNAL(textChanged()), this, SLOT(onTextChanged()));
 
     linesNumberChanged(blockCount());
     highlightCurrentLine();
@@ -37,7 +36,8 @@ void ScriptEditor::resizeEvent(QResizeEvent *event)
     lineNumbers->setGeometry(cr);
 }
 
-static void inline indent(QTextCursor& cursor, bool isBackTab) {
+static inline QList<QTextBlock> getSelectedBlocks(QTextCursor& cursor)
+{
     QList<QTextBlock> selectedBlocks;
     if (cursor.anchor() != cursor.position()) {
         QTextBlock b = cursor.block();
@@ -52,6 +52,11 @@ static void inline indent(QTextCursor& cursor, bool isBackTab) {
             }
         }
     }
+    return selectedBlocks;
+}
+
+static inline void indent(QTextCursor& cursor, bool isBackTab) {
+    QList<QTextBlock> selectedBlocks = getSelectedBlocks(cursor);
     if (selectedBlocks.isEmpty()) {
         if (isBackTab) {
             const QString& text = cursor.block().text();
@@ -143,8 +148,10 @@ void ScriptEditor::keyPressEvent(QKeyEvent *e)
     }
 }
 
-void ScriptEditor::onTextChanged()
+void ScriptEditor::focusInEvent(QFocusEvent *e)
 {
+    QPlainTextEdit::focusInEvent(e);
+    emit onFocus(this);
 }
 
 void ScriptEditor::show()
@@ -176,4 +183,28 @@ void ScriptEditor::highlightCurrentLine()
     }
 
     setExtraSelections(extraSelections);
+}
+
+void ScriptEditor::commentSelection()
+{
+    ScriptDocument* doc = dynamic_cast<ScriptDocument*>(document());
+    if (doc) {
+        QTextCursor cursor = textCursor();
+        cursor.beginEditBlock();
+        QList<QTextBlock> selectedBlocks = getSelectedBlocks(cursor);
+        bool haveSelection = cursor.anchor() != cursor.position();
+        if (!haveSelection) {
+            selectedBlocks << cursor.block();
+        }
+        bool changeSelection = false;
+        if (selectedBlocks.isEmpty()) {
+            changeSelection = doc->assistant()->commentSelection(cursor);
+        } else {
+            changeSelection = doc->assistant()->commentLines(cursor, selectedBlocks);
+        }
+        if (haveSelection && changeSelection) {
+            setTextCursor(cursor);
+        }
+        cursor.endEditBlock();
+    }
 }
