@@ -173,13 +173,18 @@ void ScriptEditor::highlightCurrentLine()
     QList<QTextEdit::ExtraSelection> extraSelections;
 
     if (!isReadOnly()) {
-        QTextEdit::ExtraSelection selection;
-
-        selection.format.setBackground(QColor(240, 240, 255));
-        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-        selection.cursor = textCursor();
-        selection.cursor.clearSelection();
-        extraSelections.append(selection);
+        QTextEdit::ExtraSelection wholeLine;
+        wholeLine.format.setBackground(QColor(247, 247, 255));
+        wholeLine.format.setProperty(QTextFormat::FullWidthSelection, true);
+        wholeLine.cursor = textCursor();
+        wholeLine.cursor.clearSelection();
+        extraSelections.append(wholeLine);
+        QTextEdit::ExtraSelection texted;
+        texted.format.setBackground(QColor(240, 240, 255));
+        texted.cursor = textCursor();
+        texted.cursor.movePosition(QTextCursor::StartOfBlock);
+        texted.cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        extraSelections.append(texted);
     }
 
     setExtraSelections(extraSelections);
