@@ -1,6 +1,7 @@
 #include "scriptassistantlua.h"
 #include "tokenfinder.h"
 #include "scripteditor.h"
+#include "scriptdocument.h"
 
 static bool tokensSetup = true;
 static TokenFinder luaTokens;
@@ -32,7 +33,7 @@ public:
     }
 };
 
-ScriptAssistantLua::ScriptAssistantLua(QTextDocument *document) :
+ScriptAssistantLua::ScriptAssistantLua(ScriptDocument *document) :
     ScriptAssistant(document)
 {
     if (tokensSetup) {

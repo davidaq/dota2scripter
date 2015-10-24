@@ -5,7 +5,6 @@ DocumentManager::DocumentManager() :
 {
 }
 
-
 DocumentManager* DocumentManager::manager()
 {
     static DocumentManager manager;

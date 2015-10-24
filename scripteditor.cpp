@@ -3,6 +3,7 @@
 #include "scriptdocument.h"
 #include <QTextDocumentFragment>
 #include <QTextBlock>
+#include <QMimeData>
 
 ScriptEditor::ScriptEditor(QWidget *parent) :
     QPlainTextEdit(parent)
@@ -17,6 +18,12 @@ ScriptEditor::ScriptEditor(QWidget *parent) :
 
     linesNumberChanged(blockCount());
     highlightCurrentLine();
+}
+
+void ScriptEditor::setDocument(QTextDocument *document)
+{
+    QPlainTextEdit::setDocument(document);
+    setStyleSheet("font-family: Monaco, Monospace, Courier New, Courier !important; font-size: 13px");
 }
 
 void ScriptEditor::updateLineNumbers(const QRect&, int dy)
@@ -152,6 +159,11 @@ void ScriptEditor::focusInEvent(QFocusEvent *e)
 {
     QPlainTextEdit::focusInEvent(e);
     emit onFocus(this);
+}
+
+void ScriptEditor::insertFromMimeData(const QMimeData *source)
+{
+    insertPlainText(source->text());
 }
 
 void ScriptEditor::show()

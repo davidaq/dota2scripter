@@ -9,5 +9,6 @@
         <file>icons/toolbar/unit.png</file>
         <file>icons/toolbar/item.png</file>
         <file>icons/toolbar/split.png</file>
+        <file>icons/toolbar/question.png</file>
     </qresource>
 </RCC>

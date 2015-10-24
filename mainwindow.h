@@ -8,6 +8,8 @@ class MainWindow;
 }
 
 class ScriptEditor;
+class ScriptDocument;
+class QListWidgetItem;
 
 class MainWindow : public QMainWindow
 {
@@ -18,6 +20,8 @@ public:
     ~MainWindow();
 
 private slots:
+    void displayDocument(ScriptDocument* doc);
+
     void on_actionNew_Lua_Script_triggered();
 
     void on_actionSplit_Editor_triggered(bool checked);
@@ -31,6 +35,10 @@ private slots:
     void on_actionSwitch_To_Split_Editor_triggered();
 
     void on_actionComment_Selection_triggered();
+
+    void onDocumentListUpdated();
+
+    void on_documentList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
 private:
     Ui::MainWindow *ui;

@@ -14,6 +14,8 @@ public:
 
 
     const QString& path() const;
+    QString title();
+    QIcon icon();
     DocumentType type() const;
     ScriptAssistant* assistant() const;
 
@@ -26,6 +28,7 @@ signals:
 public slots:
 
 private:
+    QString docTitle;
     QString docPath;
     DocumentType docType;
     ScriptAssistant* docAssistant;

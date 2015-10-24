@@ -11,10 +11,12 @@ class ScriptEditor : public QPlainTextEdit
     Q_OBJECT
 public:
     explicit ScriptEditor(QWidget *parent = 0);
+    void setDocument(QTextDocument *document);
 protected:
     void resizeEvent(QResizeEvent *);
     void keyPressEvent(QKeyEvent *);
     void focusInEvent(QFocusEvent *);
+    void insertFromMimeData(const QMimeData *source);
 signals:
     void onFocus(ScriptEditor*);
 public slots:

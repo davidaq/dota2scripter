@@ -3,20 +3,25 @@
 
 #include <QSyntaxHighlighter>
 #include <QMetaMethod>
+#include <QIcon>
 
 class ScriptEditor;
+class ScriptDocument;
 
 class ScriptAssistant : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
-    explicit ScriptAssistant(QTextDocument *parent = 0);
+    explicit ScriptAssistant(ScriptDocument *parent = 0);
     virtual bool autoIndent(QTextCursor& cursor) = 0;
 
     void informInputFromEditor(int keyPressed, QTextCursor& cursor, ScriptEditor* editor);
     virtual QString lineCommentMark() = 0;
     virtual QString blockCommentStart() = 0;
     virtual QString blockCommentEnd() = 0;
+
+    virtual QString title();
+    virtual QIcon icon();
 
     bool commentSelection(QTextCursor& cursor);
     bool commentLines(QTextCursor& cursor, const QList<QTextBlock>& lines);

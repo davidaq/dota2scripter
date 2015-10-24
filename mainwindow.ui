@@ -246,7 +246,7 @@
        </item>
        <item>
         <property name="text">
-         <string>script</string>
+         <string>Lua Script</string>
         </property>
         <property name="icon">
          <iconset resource="icons.qrc">
@@ -286,7 +286,7 @@
       <number>0</number>
      </property>
      <item row="0" column="0">
-      <widget class="QListWidget" name="listWidget">
+      <widget class="QListWidget" name="documentList">
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>

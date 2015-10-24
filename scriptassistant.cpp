@@ -1,9 +1,10 @@
 #include "scriptassistant.h"
 #include "scripteditor.h"
+#include "scriptdocument.h"
 #include <QTextCursor>
 #include <QMetaMethod>
 
-ScriptAssistant::ScriptAssistant(QTextDocument *parent) :
+ScriptAssistant::ScriptAssistant(ScriptDocument *parent) :
     QSyntaxHighlighter(parent)
 {
 }
@@ -65,6 +66,16 @@ void ScriptAssistant::onInput(const QString& token, QObject* obj, const char* sl
     inputListeners[key].append(InputListener(token, obj, method, wordBreak));
 }
 
+QString ScriptAssistant::title()
+{
+    return ((ScriptDocument*)document())->path();
+}
+
+QIcon ScriptAssistant::icon()
+{
+    return QIcon(":/icons/toolbar/question.png");
+}
+
 bool ScriptAssistant::commentLines(QTextCursor& cursor, const QList<QTextBlock> &lines)
 {
     QString mark = lineCommentMark();
@@ -98,14 +109,17 @@ bool ScriptAssistant::commentLines(QTextCursor& cursor, const QList<QTextBlock> 
 
 bool ScriptAssistant::commentSelection(QTextCursor &cursor)
 {
+    // TODO fix here
     QString prefix = blockCommentStart();
     QString suffix = blockCommentEnd();
     if (prefix.isEmpty() || suffix.isEmpty()) {
         return false;
     }
     const QString& selText = cursor.selectedText();
-    const QString& before = cursor.block().text().mid(cursor.selectionStart() - prefix.length(), prefix.length());
-    const QString& after = cursor.block().text().mid(cursor.selectionEnd(), suffix.length());
+    const QString& blockText = cursor.block().text();
+    const QString& before = blockText.mid(cursor.selectionStart() - cursor.position() - prefix.length(), prefix.length());
+    const QString& after = blockText.mid(cursor.selectionEnd() - cursor.position(), suffix.length());
+    qDebug() << selText << before << after;
     if ((selText.startsWith(prefix) || before == prefix) && (selText.endsWith(suffix) || after == suffix)) {
         int start = cursor.selectionStart();
         if (before == prefix) {
@@ -128,9 +142,9 @@ bool ScriptAssistant::commentSelection(QTextCursor &cursor)
         cursor.insertText(suffix);
         cursor.setPosition(start);
         cursor.insertText(prefix);
-        cursor.setPosition(start);
-        cursor.setPosition(end, QTextCursor::KeepAnchor);
-        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, prefix.length() + suffix.length());
+        cursor.setPosition(end);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, prefix.length() + suffix.length());
+        cursor.setPosition(start, QTextCursor::KeepAnchor);
         return true;
     }
     return false;
