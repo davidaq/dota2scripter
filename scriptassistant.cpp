@@ -109,7 +109,6 @@ bool ScriptAssistant::commentLines(QTextCursor& cursor, const QList<QTextBlock> 
 
 bool ScriptAssistant::commentSelection(QTextCursor &cursor)
 {
-    // TODO fix here
     QString prefix = blockCommentStart();
     QString suffix = blockCommentEnd();
     if (prefix.isEmpty() || suffix.isEmpty()) {
@@ -117,9 +116,8 @@ bool ScriptAssistant::commentSelection(QTextCursor &cursor)
     }
     const QString& selText = cursor.selectedText();
     const QString& blockText = cursor.block().text();
-    const QString& before = blockText.mid(cursor.selectionStart() - cursor.position() - prefix.length(), prefix.length());
-    const QString& after = blockText.mid(cursor.selectionEnd() - cursor.position(), suffix.length());
-    qDebug() << selText << before << after;
+    const QString& before = blockText.mid(cursor.selectionStart() - cursor.block().position() - prefix.length(), prefix.length());
+    const QString& after = blockText.mid(cursor.selectionEnd() - cursor.block().position(), suffix.length());
     if ((selText.startsWith(prefix) || before == prefix) && (selText.endsWith(suffix) || after == suffix)) {
         int start = cursor.selectionStart();
         if (before == prefix) {
