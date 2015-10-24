@@ -16,6 +16,7 @@ const static int STRING_M   = 5;
 const static int OPERATOR   = 6;
 const static int GLOBALS    = 7;
 const static int LITERAL    = 8;
+const static int BRACKET    = 9;
 
 const static int COMMENT_MASK = 1 << 28;
 const static int STRING_MASK  = 1 << 29;
@@ -25,6 +26,7 @@ class LuaBlockData : public QTextBlockUserData
 public:
     bool indentNextLine;
     QString closer;
+    QList<int> brackets;
 
     LuaBlockData() :
         indentNextLine(false),
@@ -63,9 +65,11 @@ ScriptAssistantLua::ScriptAssistantLua(ScriptDocument *document) :
         luaTokens.addTokens(QStringList()
                             << "+" << "-" << "*" << "/" << "%" << "^"
                             << "|" << "&" << "?" << "~" << ">" << "<"
-                            << "=" << "(" << ")" << "{" << "}" << "."
-                            << ":" << "#"
+                            << "=" << "." << ":" << "#"
                             , OPERATOR);
+        luaTokens.addTokens(QStringList()
+                            << "(" << ")" << "{" << "}"
+                            , BRACKET);
         luaTokens.addTokens(QStringList()
                             << "getfenv"    << "setfenv"    << "pcall"          << "rawequal"       << "gcinfo"
                             << "os"         << "debug"      << "collectgarbage" << "dofile"         << "_G"
@@ -157,8 +161,13 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
     }
     int needIndent = 0;
     blockData->closer = "";
+    blockData->brackets.clear();
     while (luaTokens.next()) {
         switch (luaTokens.tag().toInt()) {
+        case BRACKET:
+            setFormat(luaTokens.position(), luaTokens.token().length(), 0x7941ba);
+            blockData->brackets.append(luaTokens.position());
+            break;
         case LITERAL:
             if (isWordBreak(text, luaTokens.position() - 1)
                     && isWordBreak(text, luaTokens.position() + luaTokens.token().length())) {
