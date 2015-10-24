@@ -9,6 +9,10 @@ ScriptAssistant::ScriptAssistant(ScriptDocument *parent) :
 {
 }
 
+void ScriptAssistant::onExtraHighLight(QList<QTextEdit::ExtraSelection>& /*selection*/, QTextCursor /*cursor*/)
+{
+}
+
 bool ScriptAssistant::isWordBreak(const QChar& c) const
 {
     char cc = c.toLatin1();

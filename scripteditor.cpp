@@ -69,7 +69,7 @@ static inline void indent(QTextCursor& cursor, bool isBackTab) {
             const QString& text = cursor.block().text();
             if (cursor.selectionStart() != cursor.selectionEnd()) {
                 cursor.removeSelectedText();
-            } else if (cursor.atEnd() && text.at(cursor.positionInBlock() - 1) != ' ') {
+            } else if (cursor.atBlockEnd() && text.at(cursor.positionInBlock() - 1) != ' ') {
                 cursor.movePosition(QTextCursor::StartOfBlock);
                 cursor.movePosition(QTextCursor::NextWord);
             }
@@ -197,6 +197,10 @@ void ScriptEditor::highlightCurrentLine()
         texted.cursor.movePosition(QTextCursor::StartOfBlock);
         texted.cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
         extraSelections.append(texted);
+        ScriptDocument* doc = dynamic_cast<ScriptDocument*>(document());
+        if (doc) {
+            doc->assistant()->onExtraHighLight(extraSelections, textCursor());
+        }
     }
 
     setExtraSelections(extraSelections);

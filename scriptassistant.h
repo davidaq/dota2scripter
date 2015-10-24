@@ -4,6 +4,7 @@
 #include <QSyntaxHighlighter>
 #include <QMetaMethod>
 #include <QIcon>
+#include <QTextEdit>
 
 class ScriptEditor;
 class ScriptDocument;
@@ -14,6 +15,7 @@ class ScriptAssistant : public QSyntaxHighlighter
 public:
     explicit ScriptAssistant(ScriptDocument *parent = 0);
     virtual bool autoIndent(QTextCursor& cursor) = 0;
+    virtual void onExtraHighLight(QList<QTextEdit::ExtraSelection>& selection, QTextCursor cursor);
 
     void informInputFromEditor(int keyPressed, QTextCursor& cursor, ScriptEditor* editor);
     virtual QString lineCommentMark() = 0;

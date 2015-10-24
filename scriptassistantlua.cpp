@@ -16,7 +16,8 @@ const static int STRING_M   = 5;
 const static int OPERATOR   = 6;
 const static int GLOBALS    = 7;
 const static int LITERAL    = 8;
-const static int BRACKET    = 9;
+const static int BRACKET_O  = 9;
+const static int BRACKET_C  = 10;
 
 const static int COMMENT_MASK = 1 << 28;
 const static int STRING_MASK  = 1 << 29;
@@ -26,7 +27,7 @@ class LuaBlockData : public QTextBlockUserData
 public:
     bool indentNextLine;
     QString closer;
-    QList<int> brackets;
+    QList<QPair<int,bool> > brackets;
 
     LuaBlockData() :
         indentNextLine(false),
@@ -68,8 +69,11 @@ ScriptAssistantLua::ScriptAssistantLua(ScriptDocument *document) :
                             << "=" << "." << ":" << "#"
                             , OPERATOR);
         luaTokens.addTokens(QStringList()
-                            << "(" << ")" << "{" << "}"
-                            , BRACKET);
+                            << "(" << "{"
+                            , BRACKET_O);
+        luaTokens.addTokens(QStringList()
+                            << ")" << "}"
+                            , BRACKET_C);
         luaTokens.addTokens(QStringList()
                             << "getfenv"    << "setfenv"    << "pcall"          << "rawequal"       << "gcinfo"
                             << "os"         << "debug"      << "collectgarbage" << "dofile"         << "_G"
@@ -162,11 +166,16 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
     int needIndent = 0;
     blockData->closer = "";
     blockData->brackets.clear();
+    blockData->brackets.append(QPair<int,bool>(-1, false));
     while (luaTokens.next()) {
         switch (luaTokens.tag().toInt()) {
-        case BRACKET:
+        case BRACKET_O:
             setFormat(luaTokens.position(), luaTokens.token().length(), 0x7941ba);
-            blockData->brackets.append(luaTokens.position());
+            blockData->brackets.append(QPair<int,bool>(luaTokens.position(), true));
+            break;
+        case BRACKET_C:
+            setFormat(luaTokens.position(), luaTokens.token().length(), 0x7941ba);
+            blockData->brackets.append(QPair<int,bool>(luaTokens.position(), false));
             break;
         case LITERAL:
             if (isWordBreak(text, luaTokens.position() - 1)
@@ -328,6 +337,140 @@ bool ScriptAssistantLua::autoIndent(QTextCursor &cursor)
         return false;
     cursor.insertText(QString(" ").repeated(space));
     return true;
+}
+
+
+void ScriptAssistantLua::onExtraHighLight(QList<QTextEdit::ExtraSelection>& selection, QTextCursor cursor)
+{
+    if (cursor.atBlockStart())
+        return;
+    QChar c = cursor.block().text().at(cursor.positionInBlock() - 1);
+    if (c == '}' || c == ')' || c == '{' || c == '(') {
+        QTextEdit::ExtraSelection beforeCursor;
+        beforeCursor.format.setBackground(QColor(150, 220, 150));
+        beforeCursor.cursor = cursor;
+        beforeCursor.cursor.clearSelection();
+        beforeCursor.cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+
+        QTextBlock matchBlock = cursor.block();
+        LuaBlockData* blockData = dynamic_cast<LuaBlockData*>(matchBlock.userData());
+        int matchPos = -1;
+        if (blockData) {
+            int startPos = cursor.positionInBlock() - 1;
+            QList<QPair<int,bool> >::iterator iter;
+            if (c == '}' || c == ')') {
+                iter = blockData->brackets.end() - 1;
+                while (iter != blockData->brackets.begin()) {
+                    if (iter->first == startPos)
+                        break;
+                    iter--;
+                }
+                if (iter != blockData->brackets.begin()) {
+                    int level = 1;
+                    while (level > 0) {
+                        iter--;
+                        if (iter == blockData->brackets.begin()) {
+                            matchBlock = matchBlock.previous();
+                            if (!matchBlock.isValid()) {
+                                break;
+                            }
+                            blockData = dynamic_cast<LuaBlockData*>(matchBlock.userData());
+                            if (!blockData) {
+                                break;
+                            }
+                            iter = blockData->brackets.end();
+                        } else {
+                            if (iter->second) {
+                                level--;
+                            } else {
+                                level++;
+                            }
+                        }
+                    }
+                    if (level == 0) {
+                        matchPos = iter->first + matchBlock.position();
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                iter = blockData->brackets.begin() + 1;
+                while (iter != blockData->brackets.end()) {
+                    if (iter->first == startPos)
+                        break;
+                    iter++;
+                }
+                if (iter != blockData->brackets.end()) {
+                    int level = 1;
+                    while (level > 0) {
+                        iter++;
+                        if (iter == blockData->brackets.end()) {
+                            matchBlock = matchBlock.previous();
+                            if (!matchBlock.isValid()) {
+                                break;
+                            }
+                            blockData = dynamic_cast<LuaBlockData*>(matchBlock.userData());
+                            if (!blockData) {
+                                break;
+                            }
+                            iter = blockData->brackets.begin();
+                        } else {
+                            if (iter->second) {
+                                level++;
+                            } else {
+                                level--;
+                            }
+                        }
+                    }
+                    if (level == 0) {
+                        matchPos = iter->first + matchBlock.position();
+                    }
+                } else {
+                    return;
+                }
+            }
+        }
+        if (matchPos > -1) {
+            if (matchBlock.isVisible()) {
+                QChar mc = matchBlock.text().at(matchPos - matchBlock.position());
+                QTextEdit::ExtraSelection match;
+                bool badMatch = false;
+                if (c == '(') {
+                    if (mc != ')') {
+                        badMatch = true;
+                    }
+                } else if (c == ')') {
+                    if (mc != '(') {
+                        badMatch = true;
+                    }
+                } else if (c == '}') {
+                    if (mc != '{') {
+                        badMatch = true;
+                    }
+                } else if (c == '{') {
+                    if (mc != '}') {
+                        badMatch = true;
+                    }
+                }
+                if (badMatch) {
+                    beforeCursor.format.setBackground(QColor(250, 150, 150));
+                    match.format.setBackground(QColor(250, 150, 150));
+                } else {
+                    match.format.setBackground(QColor(150, 220, 150));
+                }
+                match.cursor = cursor;
+                match.cursor.clearSelection();
+                match.cursor.setPosition(matchPos);
+                match.cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+                selection.append(match);
+            }
+        } else if (c == '{' || c == '(') {
+            beforeCursor.format.setBackground(QColor(200, 220, 200));
+        } else {
+            beforeCursor.format.setBackground(QColor(250, 150, 150));
+        }
+        selection.append(beforeCursor);
+    }
 }
 
 void ScriptAssistantLua::newlineAutoEndBlock(QString /*token*/, QTextCursor* cursorPtr, ScriptEditor* editor)
