@@ -405,7 +405,7 @@ void ScriptAssistantLua::onExtraHighLight(QList<QTextEdit::ExtraSelection>& sele
                     while (level > 0) {
                         iter++;
                         if (iter == blockData->brackets.end()) {
-                            matchBlock = matchBlock.previous();
+                            matchBlock = matchBlock.next();
                             if (!matchBlock.isValid()) {
                                 break;
                             }
