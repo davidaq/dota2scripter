@@ -57,6 +57,16 @@ void ScriptAssistant::informInputFromEditor(int keyPressed, QTextCursor &cursor,
     }
 }
 
+QString ScriptAssistant::wordBeforeCursor(QTextCursor cursor)
+{
+    cursor.clearSelection();
+    const QString& text = cursor.block().text();
+    while (!isWordBreak(text, cursor.positionInBlock() - 1)) {
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+    }
+    return cursor.selectedText();
+}
+
 void ScriptAssistant::onInput(const QString& token, QObject* obj, const char* slot, bool wordBreak)
 {
     QChar key;

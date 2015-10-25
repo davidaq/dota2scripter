@@ -31,6 +31,7 @@ public:
 
     virtual bool isWordBreak(const QChar& c) const;
     virtual bool isWordBreak(const QString& str, int pos) const;
+    QString wordBeforeCursor(QTextCursor cursor);
 protected:
     void onInput(const QString& token, QObject *obj, const char* slot, bool wordBreak=true);
 signals:

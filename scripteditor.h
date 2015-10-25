@@ -38,6 +38,8 @@ private:
     friend class ScriptEditorLineNumbers;
     ScriptEditorLineNumbers *lineNumbers;
     QListWidget* inputTipWidget;
+
+    void filterInputTip();
 };
 
 #endif // SCRIPTEDITOR_H

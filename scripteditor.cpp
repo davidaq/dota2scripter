@@ -40,6 +40,7 @@ void ScriptEditor::onReceiveInputTip(ScriptAssistant* assistant)
     inputTipWidget->setCurrentRow(0);
     inputTipWidget->show();
     adjustInputTipWidget();
+    filterInputTip();
 }
 
 void ScriptEditor::adjustInputTipWidget()
@@ -242,6 +243,15 @@ void ScriptEditor::keyPressEvent(QKeyEvent *e)
         if (modified) {
             doc->setModified(true);
         }
+        filterInputTip();
+    }
+}
+
+void ScriptEditor::filterInputTip()
+{
+    ScriptDocument* doc = dynamic_cast<ScriptDocument*>(document());
+    if (!doc) {
+        return;
     }
     if (!inputTipWidget->isHidden()) {
         QTextCursor cursor = textCursor();
@@ -249,7 +259,7 @@ void ScriptEditor::keyPressEvent(QKeyEvent *e)
         while (!doc->assistant()->isWordBreak(line, cursor.positionInBlock() - 1)) {
             cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
         }
-        QString prefix = cursor.selectedText();
+        QString prefix = doc->assistant()->wordBeforeCursor(textCursor());
         if (!prefix.isEmpty()) {
             for (int i = 0; i < inputTipWidget->count(); i++) {
                 if (!inputTipWidget->item(i)->text().startsWith(prefix)) {

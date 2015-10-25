@@ -109,26 +109,7 @@ QIcon ScriptAssistantLua::icon()
 
 QStringList ScriptAssistantLua::inputTip(QTextCursor cursor)
 {
-    return QStringList()
-            << "hello"
-            << "world"
-            << "wtf"
-            << "omg"
-            << "hello"
-            << "world"
-            << "wtf"
-            << "omg"
-            << "wtf"
-            << "omg"
-            << "wtf"
-            << "omg"
-            << "wtf"
-            << "omg"
-            << "wtf"
-            << "omg"
-            << "wtf"
-            << "omg"
-            << "gop";
+    return QStringList();
 }
 
 QString ScriptAssistantLua::lineCommentMark()
@@ -487,7 +468,7 @@ void ScriptAssistantLua::onExtraHighLight(QList<QTextEdit::ExtraSelection>& sele
 
 void ScriptAssistantLua::checkInputTip(QString token, QTextCursor* cursorPtr, ScriptEditor* editor)
 {
-    if (token == ":") {
+    if (token == ":" || wordBeforeCursor(*cursorPtr).length() > 2) {
         editor->onReceiveInputTip(this);
     }
 }
