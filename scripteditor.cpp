@@ -4,17 +4,20 @@
 #include <QTextDocumentFragment>
 #include <QTextBlock>
 #include <QMimeData>
+#include <QListWidget>
 
 ScriptEditor::ScriptEditor(QWidget *parent) :
     QPlainTextEdit(parent)
 {
     lineNumbers = new ScriptEditorLineNumbers(this);
 
-    setStyleSheet("font-family: Monaco, Monospace, Courier New, Courier !important; font-size: 13px");
+    inputTipWidget = new QListWidget(this->viewport());
+    inputTipWidget->hide();
 
     connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumbers(QRect,int)));
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(linesNumberChanged(int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(adjustInputTipWidget()));
 
     linesNumberChanged(blockCount());
     highlightCurrentLine();
@@ -24,6 +27,54 @@ void ScriptEditor::setDocument(QTextDocument *document)
 {
     QPlainTextEdit::setDocument(document);
     setStyleSheet("font-family: Monaco, Monospace, Courier New, Courier !important; font-size: 13px");
+}
+
+void ScriptEditor::onReceiveInputTip(ScriptAssistant* assistant)
+{
+    if (!inputTipWidget->isHidden())
+        return;
+    QStringList candidate = assistant->inputTip(textCursor());
+    inputTipWidget->clear();
+    inputTipWidget->addItems(candidate);
+    inputTipWidget->setCurrentRow(0);
+    inputTipWidget->show();
+    adjustInputTipWidget();
+}
+
+void ScriptEditor::adjustInputTipWidget()
+{
+    if (inputTipWidget->isHidden())
+        return;
+    int showLines = inputTipWidget->count();
+    if (showLines <= 0) {
+        inputTipWidget->hide();
+        return;
+    }
+    if (showLines > 7) {
+        showLines = 7;
+    }
+    int h = inputTipWidget->sizeHintForRow(0) * showLines;
+    QMargins margin = inputTipWidget->contentsMargins();
+    h += margin.top() + margin.bottom();
+    int w = 0;
+    for (int i = 0; i < inputTipWidget->count(); i++) {
+        int cw = inputTipWidget->sizeHintForColumn(i);
+        if (cw > w) {
+            w = cw;
+        }
+    }
+    w += margin.left() + margin.right() + 40;
+    inputTipWidget->resize(w, h);
+    int x = cursorRect().left();
+    int y = cursorRect().bottom();
+    int wMargin = viewportMargins().left() + viewportMargins().right();
+    if (x + w + wMargin > width()) {
+        x = width() - w - wMargin;
+    }
+    if (y + h > height()) {
+        y = cursorRect().top() - h;
+    }
+    inputTipWidget->move(x, y);
 }
 
 void ScriptEditor::updateLineNumbers(const QRect&, int dy)

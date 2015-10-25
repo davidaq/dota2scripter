@@ -80,6 +80,11 @@ QIcon ScriptAssistant::icon()
     return QIcon(":/icons/toolbar/question.png");
 }
 
+QStringList ScriptAssistant::inputTip(QTextCursor /*cursor*/)
+{
+    return QStringList();
+}
+
 bool ScriptAssistant::commentLines(QTextCursor& cursor, const QList<QTextBlock> &lines)
 {
     QString mark = lineCommentMark();

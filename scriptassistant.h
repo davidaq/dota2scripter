@@ -24,6 +24,7 @@ public:
 
     virtual QString title();
     virtual QIcon icon();
+    virtual QStringList inputTip(QTextCursor cursor);
 
     bool commentSelection(QTextCursor& cursor);
     bool commentLines(QTextCursor& cursor, const QList<QTextBlock>& lines);

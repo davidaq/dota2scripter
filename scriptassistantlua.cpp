@@ -95,11 +95,40 @@ ScriptAssistantLua::ScriptAssistantLua(ScriptDocument *document) :
     onInput("then", this, SLOT(autoUnindent(QString,QTextCursor*,ScriptEditor*)));
     onInput("]", this, SLOT(autoUnindentString(QString,QTextCursor*,ScriptEditor*)));
     onInput("", this, SLOT(undoAutoUnindent(QString,QTextCursor*,ScriptEditor*)));
+    onInput("", this, SLOT(checkInputTip(QString,QTextCursor*,ScriptEditor*)));
     onInput("\r", this, SLOT(newlineAutoEndBlock(QString,QTextCursor*,ScriptEditor*)));
 
     autoIndentBlockIndex = -1;
 }
 
+QIcon ScriptAssistantLua::icon()
+{
+    return QIcon(":/icons/toolbar/script.png");
+}
+
+QStringList ScriptAssistantLua::inputTip(QTextCursor cursor)
+{
+    return QStringList()
+            << "hello"
+            << "world"
+            << "wtf"
+            << "omg"
+            << "hello"
+            << "world"
+            << "wtf"
+            << "omg"
+            << "wtf"
+            << "omg"
+            << "wtf"
+            << "omg"
+            << "wtf"
+            << "omg"
+            << "wtf"
+            << "omg"
+            << "wtf"
+            << "omg"
+            << "gop";
+}
 
 QString ScriptAssistantLua::lineCommentMark()
 {
@@ -172,6 +201,11 @@ void ScriptAssistantLua::highlightBlock(const QString &text)
         case BRACKET_O:
             setFormat(luaTokens.position(), luaTokens.token().length(), 0x7941ba);
             blockData->brackets.append(QPair<int,bool>(luaTokens.position(), true));
+            if (luaTokens.token() == "(") {
+                blockData->closer = ")";
+            } else if (luaTokens.token() == "{") {
+                blockData->closer = "}";
+            }
             break;
         case BRACKET_C:
             setFormat(luaTokens.position(), luaTokens.token().length(), 0x7941ba);
@@ -339,7 +373,6 @@ bool ScriptAssistantLua::autoIndent(QTextCursor &cursor)
     return true;
 }
 
-
 void ScriptAssistantLua::onExtraHighLight(QList<QTextEdit::ExtraSelection>& selection, QTextCursor cursor)
 {
     if (cursor.atBlockStart())
@@ -357,76 +390,54 @@ void ScriptAssistantLua::onExtraHighLight(QList<QTextEdit::ExtraSelection>& sele
         int matchPos = -1;
         if (blockData) {
             int startPos = cursor.positionInBlock() - 1;
-            QList<QPair<int,bool> >::iterator iter;
-            if (c == '}' || c == ')') {
-                iter = blockData->brackets.end() - 1;
-                while (iter != blockData->brackets.begin()) {
-                    if (iter->first == startPos)
-                        break;
-                    iter--;
-                }
-                if (iter != blockData->brackets.begin()) {
-                    int level = 1;
-                    while (level > 0) {
-                        iter--;
-                        if (iter == blockData->brackets.begin()) {
-                            matchBlock = matchBlock.previous();
-                            if (!matchBlock.isValid()) {
-                                break;
-                            }
-                            blockData = dynamic_cast<LuaBlockData*>(matchBlock.userData());
-                            if (!blockData) {
-                                break;
-                            }
-                            iter = blockData->brackets.end();
-                        } else {
-                            if (iter->second) {
-                                level--;
-                            } else {
-                                level++;
-                            }
-                        }
-                    }
-                    if (level == 0) {
-                        matchPos = iter->first + matchBlock.position();
-                    }
-                } else {
-                    return;
-                }
+            QList<QPair<int,bool> >::iterator iter = blockData->brackets.begin() + 1;
+            while (iter != blockData->brackets.end()) {
+                if (iter->first == startPos)
+                    break;
+                iter++;
+            }
+            if (iter == blockData->brackets.end()) {
+                return;
             } else {
-                iter = blockData->brackets.begin() + 1;
-                while (iter != blockData->brackets.end()) {
-                    if (iter->first == startPos)
-                        break;
-                    iter++;
-                }
-                if (iter != blockData->brackets.end()) {
-                    int level = 1;
-                    while (level > 0) {
+                bool isClose = c == '}' || c == ')';
+                int level = isClose ? -1 : 1;
+                QList<QPair<int,bool> >::iterator end = isClose ? blockData->brackets.begin() : blockData->brackets.end();
+                while (level != 0) {
+                    if (isClose) {
+                        iter--;
+                    } else {
                         iter++;
-                        if (iter == blockData->brackets.end()) {
-                            matchBlock = matchBlock.next();
-                            if (!matchBlock.isValid()) {
-                                break;
-                            }
-                            blockData = dynamic_cast<LuaBlockData*>(matchBlock.userData());
-                            if (!blockData) {
-                                break;
-                            }
-                            iter = blockData->brackets.begin();
+                    }
+                    if (iter == end) {
+                        if (isClose) {
+                            matchBlock = matchBlock.previous();
                         } else {
-                            if (iter->second) {
-                                level++;
-                            } else {
-                                level--;
-                            }
+                            matchBlock = matchBlock.next();
+                        }
+                        if (!matchBlock.isValid()) {
+                            break;
+                        }
+                        blockData = dynamic_cast<LuaBlockData*>(matchBlock.userData());
+                        if (!blockData) {
+                            break;
+                        }
+                        if (isClose) {
+                            iter = blockData->brackets.end();
+                            end = blockData->brackets.begin();
+                        } else {
+                            iter = blockData->brackets.begin();
+                            end = blockData->brackets.end();
+                        }
+                    } else {
+                        if (iter->second) {
+                            level++;
+                        } else {
+                            level--;
                         }
                     }
-                    if (level == 0) {
-                        matchPos = iter->first + matchBlock.position();
-                    }
-                } else {
-                    return;
+                }
+                if (level == 0) {
+                    matchPos = iter->first + matchBlock.position();
                 }
             }
         }
@@ -470,6 +481,13 @@ void ScriptAssistantLua::onExtraHighLight(QList<QTextEdit::ExtraSelection>& sele
             beforeCursor.format.setBackground(QColor(250, 150, 150));
         }
         selection.append(beforeCursor);
+    }
+}
+
+void ScriptAssistantLua::checkInputTip(QString token, QTextCursor* cursorPtr, ScriptEditor* editor)
+{
+    if (token == ":") {
+        editor->onReceiveInputTip(this);
     }
 }
 

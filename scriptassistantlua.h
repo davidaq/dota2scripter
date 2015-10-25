@@ -13,10 +13,13 @@ public:
     QString lineCommentMark();
     QString blockCommentStart();
     QString blockCommentEnd();
+    QIcon icon();
+    QStringList inputTip(QTextCursor cursor);
 protected:
     void highlightBlock(const QString &text);
 
 public slots:
+    void checkInputTip(QString token, QTextCursor* cursorPtr, ScriptEditor* editor);
     void newlineAutoEndBlock(QString token, QTextCursor* cursorPtr, ScriptEditor* editor);
     void undoAutoUnindent(QString token, QTextCursor* cursorPtr, ScriptEditor* editor);
     void autoUnindent(QString token, QTextCursor* cursorPtr, ScriptEditor* editor);
