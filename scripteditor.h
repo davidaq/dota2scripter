@@ -18,7 +18,9 @@ public:
 protected:
     void resizeEvent(QResizeEvent *);
     void keyPressEvent(QKeyEvent *);
+    void mousePressEvent(QMouseEvent *);
     void focusInEvent(QFocusEvent *);
+    void focusOutEvent(QFocusEvent *);
     void insertFromMimeData(const QMimeData *source);
 signals:
     void onFocus(ScriptEditor*);

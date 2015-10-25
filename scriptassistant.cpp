@@ -34,13 +34,14 @@ bool ScriptAssistant::isWordBreak(const QString& str, int pos) const
 
 void ScriptAssistant::informInputFromEditor(int keyPressed, QTextCursor &cursor, ScriptEditor* editor)
 {
-    const QString& text = cursor.block().text().trimmed();
+    QString text = "";
     QChar key;
     if (keyPressed == Qt::Key_Return) {
         key = QChar('\r');
-    } else if (text.isEmpty()) {
+    } else if (cursor.positionInBlock() < 1) {
         key = QChar('\n');
     } else {
+        text = cursor.block().text().left(cursor.positionInBlock());
         key = text.at(text.length() - 1);
     }
     foreach (const InputListener& listener, inputListeners[QChar(0)]) {

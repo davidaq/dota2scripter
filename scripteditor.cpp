@@ -13,6 +13,7 @@ ScriptEditor::ScriptEditor(QWidget *parent) :
 
     inputTipWidget = new QListWidget(this->viewport());
     inputTipWidget->hide();
+    inputTipWidget->setSortingEnabled(true);
 
     connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumbers(QRect,int)));
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(linesNumberChanged(int)));
@@ -167,6 +168,49 @@ static inline void indent(QTextCursor& cursor, bool isBackTab) {
 
 void ScriptEditor::keyPressEvent(QKeyEvent *e)
 {
+    ScriptDocument* doc = dynamic_cast<ScriptDocument*>(document());
+    if (!doc) {
+        QPlainTextEdit::keyPressEvent(e);
+        return;
+    }
+    if (!inputTipWidget->isHidden()) {
+        switch(e->key()) {
+        case Qt::Key_Left:
+        case Qt::Key_Up: {
+            int row = inputTipWidget->currentRow();
+            row--;
+            if (row < 0)
+                row = 0;
+            inputTipWidget->setCurrentRow(row);
+            return;
+        }
+        case Qt::Key_Right:
+        case Qt::Key_Down:{
+            int row = inputTipWidget->currentRow();
+            row++;
+            if (row >= inputTipWidget->count())
+                row = inputTipWidget->count() - 1;
+            inputTipWidget->setCurrentRow(row);
+            return;
+        }
+        case Qt::Key_Tab:
+        case Qt::Key_Return: {
+            QTextCursor cursor = textCursor();
+            QString line = cursor.block().text();
+            while (!doc->assistant()->isWordBreak(line, cursor.positionInBlock() - 1)) {
+                cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            }
+            cursor.insertText(inputTipWidget->currentItem()->text());
+            inputTipWidget->clear();
+            inputTipWidget->hide();
+            return;
+        }
+        }
+        if (doc->assistant()->isWordBreak(e->text(), 0)) {
+            inputTipWidget->clear();
+            inputTipWidget->hide();
+        }
+    }
     if (e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab) {
         QTextCursor cursor = textCursor();
         cursor.beginEditBlock();
@@ -182,34 +226,65 @@ void ScriptEditor::keyPressEvent(QKeyEvent *e)
                 autoIndent = false;
             }
         }
-        ScriptDocument* doc = dynamic_cast<ScriptDocument*>(document());
-        if (doc) {
-            bool modified = doc->isModified();
-            doc->setModified(false);
-            QPlainTextEdit::keyPressEvent(e);
-            if (doc->isModified()) {
-                ScriptAssistant* assistant = doc->assistant();
-                QTextCursor cursor = textCursor();
-                cursor.beginEditBlock();
-                if (autoIndent) {
-                    assistant->autoIndent(cursor);
-                }
-                assistant->informInputFromEditor(e->key(), cursor, this);
-                cursor.endEditBlock();
+        bool modified = doc->isModified();
+        doc->setModified(false);
+        QPlainTextEdit::keyPressEvent(e);
+        if (doc->isModified()) {
+            ScriptAssistant* assistant = doc->assistant();
+            QTextCursor cursor = textCursor();
+            cursor.beginEditBlock();
+            if (autoIndent) {
+                assistant->autoIndent(cursor);
             }
-            if (modified) {
-                doc->setModified(true);
-            }
-        } else {
-            QPlainTextEdit::keyPressEvent(e);
+            assistant->informInputFromEditor(e->key(), cursor, this);
+            cursor.endEditBlock();
+        }
+        if (modified) {
+            doc->setModified(true);
         }
     }
+    if (!inputTipWidget->isHidden()) {
+        QTextCursor cursor = textCursor();
+        QString line = cursor.block().text();
+        while (!doc->assistant()->isWordBreak(line, cursor.positionInBlock() - 1)) {
+            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        }
+        QString prefix = cursor.selectedText();
+        if (!prefix.isEmpty()) {
+            for (int i = 0; i < inputTipWidget->count(); i++) {
+                if (!inputTipWidget->item(i)->text().startsWith(prefix)) {
+                    delete inputTipWidget->takeItem(i);
+                    i--;
+                }
+            }
+        }
+        if (inputTipWidget->count() == 0) {
+            inputTipWidget->clear();
+            inputTipWidget->hide();
+        } else {
+            inputTipWidget->setCurrentRow(0);
+            adjustInputTipWidget();
+        }
+    }
+}
+
+void ScriptEditor::mousePressEvent(QMouseEvent *e)
+{
+    inputTipWidget->hide();
+    QPlainTextEdit::mousePressEvent(e);
 }
 
 void ScriptEditor::focusInEvent(QFocusEvent *e)
 {
     QPlainTextEdit::focusInEvent(e);
     emit onFocus(this);
+    inputTipWidget->hide();
+}
+
+void ScriptEditor::focusOutEvent(QFocusEvent *e)
+{
+    inputTipWidget->hide();
+    QPlainTextEdit::focusOutEvent(e);
 }
 
 void ScriptEditor::insertFromMimeData(const QMimeData *source)

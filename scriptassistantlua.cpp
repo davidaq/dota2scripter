@@ -28,6 +28,7 @@ public:
     bool indentNextLine;
     QString closer;
     QList<QPair<int,bool> > brackets;
+    QString prepared;
 
     LuaBlockData() :
         indentNextLine(false),
