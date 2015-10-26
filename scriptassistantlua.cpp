@@ -100,7 +100,8 @@ ScriptAssistantLua::ScriptAssistantLua(ScriptDocument *document) :
         qDebug() << luaApi;
         QStringList part = luaApi.split("!!!");
         QString input;
-        foreach(const QString& line, part[0].split("\n")) {
+        foreach(QString line, part[0].split("\n")) {
+            line = line.trimmed();
             if (line.isEmpty())
                 continue;
             if (input.isEmpty()) {
