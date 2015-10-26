@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>data/lua_api.txt</file>
+    </qresource>
+</RCC>

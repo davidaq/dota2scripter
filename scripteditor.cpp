@@ -34,13 +34,23 @@ void ScriptEditor::onReceiveInputTip(ScriptAssistant* assistant)
 {
     if (!inputTipWidget->isHidden())
         return;
-    QStringList candidate = assistant->inputTip(textCursor());
+    QList<ScriptAssistant::Tip> candidate = assistant->inputTip(textCursor());
     inputTipWidget->clear();
-    inputTipWidget->addItems(candidate);
+    foreach (const ScriptAssistant::Tip& tip, candidate) {
+        QListWidgetItem* item = new QListWidgetItem();
+        if (tip.second.isEmpty()) {
+            item->setText(tip.first);
+        } else {
+            item->setText(tip.second);
+        }
+        item->setData(Qt::UserRole, tip.first);
+        inputTipWidget->addItem(item);
+    }
     inputTipWidget->setCurrentRow(0);
     inputTipWidget->show();
-    adjustInputTipWidget();
     filterInputTip();
+    adjustInputTipWidget();
+    inputTipWidget->scrollToTop();
 }
 
 void ScriptEditor::adjustInputTipWidget()
@@ -66,10 +76,15 @@ void ScriptEditor::adjustInputTipWidget()
         }
     }
     w += margin.left() + margin.right() + 40;
+    int mw = viewport()->width() * 2 / 3;
+    if (w > mw) {
+        w = mw;
+        h += 20;
+    }
     inputTipWidget->resize(w, h);
     int x = cursorRect().left();
     int y = cursorRect().bottom();
-    int wMargin = viewportMargins().left() + viewportMargins().right();
+    int wMargin = viewport()->contentsMargins().left() + viewport()->contentsMargins().right();
     if (x + w + wMargin > width()) {
         x = width() - w - wMargin;
     }
@@ -201,13 +216,13 @@ void ScriptEditor::keyPressEvent(QKeyEvent *e)
             while (!doc->assistant()->isWordBreak(line, cursor.positionInBlock() - 1)) {
                 cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
             }
-            cursor.insertText(inputTipWidget->currentItem()->text());
+            cursor.insertText(inputTipWidget->currentItem()->data(Qt::UserRole).toString());
             inputTipWidget->clear();
             inputTipWidget->hide();
             return;
         }
         }
-        if (doc->assistant()->isWordBreak(e->text(), 0)) {
+        if (e->key() != Qt::Key_Shift && doc->assistant()->isWordBreak(e->text(), 0)) {
             inputTipWidget->clear();
             inputTipWidget->hide();
         }
@@ -255,14 +270,10 @@ void ScriptEditor::filterInputTip()
     }
     if (!inputTipWidget->isHidden()) {
         QTextCursor cursor = textCursor();
-        QString line = cursor.block().text();
-        while (!doc->assistant()->isWordBreak(line, cursor.positionInBlock() - 1)) {
-            cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-        }
-        QString prefix = doc->assistant()->wordBeforeCursor(textCursor());
+        QString prefix = doc->assistant()->wordBeforeCursor(cursor);
         if (!prefix.isEmpty()) {
             for (int i = 0; i < inputTipWidget->count(); i++) {
-                if (!inputTipWidget->item(i)->text().startsWith(prefix)) {
+                if (!inputTipWidget->item(i)->data(Qt::UserRole).toString().startsWith(prefix)) {
                     delete inputTipWidget->takeItem(i);
                     i--;
                 }
@@ -280,21 +291,24 @@ void ScriptEditor::filterInputTip()
 
 void ScriptEditor::mousePressEvent(QMouseEvent *e)
 {
-    inputTipWidget->hide();
     QPlainTextEdit::mousePressEvent(e);
+    inputTipWidget->clear();
+    inputTipWidget->hide();
 }
 
 void ScriptEditor::focusInEvent(QFocusEvent *e)
 {
     QPlainTextEdit::focusInEvent(e);
     emit onFocus(this);
+    inputTipWidget->clear();
     inputTipWidget->hide();
 }
 
 void ScriptEditor::focusOutEvent(QFocusEvent *e)
 {
-    inputTipWidget->hide();
     QPlainTextEdit::focusOutEvent(e);
+//    inputTipWidget->clear();
+//    inputTipWidget->hide();
 }
 
 void ScriptEditor::insertFromMimeData(const QMimeData *source)

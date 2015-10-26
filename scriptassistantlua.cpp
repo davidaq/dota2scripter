@@ -2,11 +2,14 @@
 #include "tokenfinder.h"
 #include "scripteditor.h"
 #include "scriptdocument.h"
+#include <QResource>
 
 static bool tokensSetup = true;
 static TokenFinder luaTokens;
 static QSet<QString> indentKeywords;
 static QSet<QString> unindentKeywords;
+static QList<ScriptAssistant::Tip> gapi;
+static QList<ScriptAssistant::Tip> mapi;
 
 const static int KEYWORD    = 1;
 const static int COMMENT    = 2;
@@ -88,6 +91,35 @@ ScriptAssistantLua::ScriptAssistantLua(ScriptDocument *document) :
                             << "for"    << "function"  << "if"      << "repeat"     << "while";
         unindentKeywords    << "do"     << "elseif"    << "else"    << "then"
                             << "end"    << "until";
+        QResource res(":/data/lua_api.txt");
+        QByteArray resBytes((const char*)res.data(), res.size());
+        if (res.isCompressed()) {
+            resBytes = qUncompress(resBytes);
+        }
+        QString luaApi = resBytes;
+        qDebug() << luaApi;
+        QStringList part = luaApi.split("!!!");
+        QString input;
+        foreach(const QString& line, part[0].split("\n")) {
+            if (line.isEmpty())
+                continue;
+            if (input.isEmpty()) {
+                input = line;
+            } else {
+                gapi.append(Tip(input, line));
+                input = "";
+            }
+        }
+        foreach(const QString& line, part[1].split("\n")) {
+            if (line.isEmpty())
+                continue;
+            if (input.isEmpty()) {
+                input = line;
+            } else {
+                mapi.append(Tip(input, line));
+                input = "";
+            }
+        }
     }
     onInput("end", this, SLOT(autoUnindent(QString,QTextCursor*,ScriptEditor*)));
     onInput("until", this, SLOT(autoUnindent(QString,QTextCursor*,ScriptEditor*)));
@@ -107,9 +139,16 @@ QIcon ScriptAssistantLua::icon()
     return QIcon(":/icons/toolbar/script.png");
 }
 
-QStringList ScriptAssistantLua::inputTip(QTextCursor cursor)
+QList<ScriptAssistant::Tip> ScriptAssistantLua::inputTip(QTextCursor cursor)
 {
-    return QStringList();
+    QString word = wordBeforeCursor(cursor);
+    if (!cursor.atBlockStart()) {
+        cursor.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        if (cursor.selectedText() == ":") {
+            return mapi;
+        }
+    }
+    return gapi;
 }
 
 QString ScriptAssistantLua::lineCommentMark()

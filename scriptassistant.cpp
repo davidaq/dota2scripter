@@ -16,11 +16,11 @@ void ScriptAssistant::onExtraHighLight(QList<QTextEdit::ExtraSelection>& /*selec
 bool ScriptAssistant::isWordBreak(const QChar& c) const
 {
     char cc = c.toLatin1();
-    if ((cc >= '0' && cc <= '9') || (cc >= 'a' && cc <= 'z') || (cc >= 'A' && cc <= 'Z')) {
-        return false;
-    }
     if (cc == '_') {
         return true;
+    }
+    if ((cc >= '0' && cc <= '9') || (cc >= 'a' && cc <= 'z') || (cc >= 'A' && cc <= 'Z')) {
+        return false;
     }
     return true;
 }
@@ -57,7 +57,7 @@ void ScriptAssistant::informInputFromEditor(int keyPressed, QTextCursor &cursor,
     }
 }
 
-QString ScriptAssistant::wordBeforeCursor(QTextCursor cursor)
+QString ScriptAssistant::wordBeforeCursor(QTextCursor &cursor)
 {
     cursor.clearSelection();
     const QString& text = cursor.block().text();
@@ -91,9 +91,9 @@ QIcon ScriptAssistant::icon()
     return QIcon(":/icons/toolbar/question.png");
 }
 
-QStringList ScriptAssistant::inputTip(QTextCursor /*cursor*/)
+QList<ScriptAssistant::Tip> ScriptAssistant::inputTip(QTextCursor /*cursor*/)
 {
-    return QStringList();
+    return QList<Tip>();
 }
 
 bool ScriptAssistant::commentLines(QTextCursor& cursor, const QList<QTextBlock> &lines)

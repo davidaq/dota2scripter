@@ -14,7 +14,7 @@ public:
     QString blockCommentStart();
     QString blockCommentEnd();
     QIcon icon();
-    QStringList inputTip(QTextCursor cursor);
+    QList<Tip> inputTip(QTextCursor cursor);
 protected:
     void highlightBlock(const QString &text);
 

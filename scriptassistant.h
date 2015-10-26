@@ -24,14 +24,15 @@ public:
 
     virtual QString title();
     virtual QIcon icon();
-    virtual QStringList inputTip(QTextCursor cursor);
+    typedef QPair<QString, QString> Tip;
+    virtual QList<Tip> inputTip(QTextCursor cursor);
 
     bool commentSelection(QTextCursor& cursor);
     bool commentLines(QTextCursor& cursor, const QList<QTextBlock>& lines);
 
     virtual bool isWordBreak(const QChar& c) const;
     virtual bool isWordBreak(const QString& str, int pos) const;
-    QString wordBeforeCursor(QTextCursor cursor);
+    QString wordBeforeCursor(QTextCursor& cursor);
 protected:
     void onInput(const QString& token, QObject *obj, const char* slot, bool wordBreak=true);
 signals:

@@ -39,4 +39,8 @@ FORMS    += mainwindow.ui \
     addonselectdialog.ui
 
 RESOURCES += \
-    icons.qrc
+    icons.qrc \
+    data.qrc
+
+OTHER_FILES += \
+    data/lua_api.txt
